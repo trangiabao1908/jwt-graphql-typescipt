@@ -18,6 +18,7 @@ const documents = {
     "mutation Register($registerInput: RegisterInput!) {\n  register(registerInput: $registerInput) {\n    code\n    message\n    success\n    user {\n      id\n      username\n    }\n  }\n}": types.RegisterDocument,
     "query GetAllUser {\n  getAllUser {\n    id\n    username\n  }\n}": types.GetAllUserDocument,
     "query Query {\n  hello\n}": types.QueryDocument,
+    "query Search($pharse: String!) {\n  search(pharse: $pharse) {\n    ... on User {\n      id\n      username\n    }\n  }\n}": types.SearchDocument,
 };
 
 /**
@@ -54,6 +55,10 @@ export function graphql(source: "query GetAllUser {\n  getAllUser {\n    id\n   
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query Query {\n  hello\n}"): (typeof documents)["query Query {\n  hello\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query Search($pharse: String!) {\n  search(pharse: $pharse) {\n    ... on User {\n      id\n      username\n    }\n  }\n}"): (typeof documents)["query Search($pharse: String!) {\n  search(pharse: $pharse) {\n    ... on User {\n      id\n      username\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

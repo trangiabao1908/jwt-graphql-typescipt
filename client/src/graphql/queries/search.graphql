@@ -1,0 +1,8 @@
+query Search($pharse: String!) {
+  search(pharse: $pharse) {
+    ... on User {
+      id
+      username
+    }
+  }
+}

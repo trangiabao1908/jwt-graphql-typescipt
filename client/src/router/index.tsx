@@ -7,6 +7,7 @@ import { Profile } from "../pages/Profile";
 import ErrorLayout from "./ErrorLayout";
 import AuthLayout from "../pages/AuthLayout";
 import ProtectedRoute from "./ProtectedRoute";
+import Search from "../pages/Search";
 
 export const route = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ export const route = createBrowserRouter([
           {
             element: <Home />,
             path: "/",
+          },
+          {
+            element: <Search />,
+            path: "/search",
           },
           {
             element: <Profile />,

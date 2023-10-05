@@ -16,17 +16,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
-const User_1 = require("../entities/User");
-const type_graphql_1 = require("type-graphql");
-const RegisterInput_1 = require("../types/RegisterInput");
 const argon2_1 = __importDefault(require("argon2"));
-const UserMutationReponse_1 = require("../types/UserMutationReponse");
+const type_graphql_1 = require("type-graphql");
+const User_1 = require("../entities/User");
 const LoginInput_1 = require("../types/LoginInput");
+const RegisterInput_1 = require("../types/RegisterInput");
+const UserMutationReponse_1 = require("../types/UserMutationReponse");
 const authToken_1 = require("../utils/authToken");
+const typeorm_1 = require("typeorm");
+const SearchResultUnion = (0, type_graphql_1.createUnionType)({
+    name: "SearchResult",
+    types: () => [User_1.User],
+    resolveType: (value) => {
+        if ("username" in value) {
+            return "User";
+        }
+        return undefined;
+    },
+});
 let UserResolver = class UserResolver {
     async getAllUser() {
         const users = await User_1.User.find();
         return users;
+    }
+    async search(pharse) {
+        try {
+            if (pharse !== "") {
+                const names = await User_1.User.find({
+                    where: {
+                        username: (0, typeorm_1.Like)(`%${pharse}%`),
+                    },
+                });
+                return [...names];
+            }
+            return [];
+        }
+        catch (err) {
+            console.log(err);
+            throw new Error("Could not find user");
+        }
     }
     async register(registerInput) {
         const { username, password } = registerInput;
@@ -131,6 +159,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "getAllUser", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => [SearchResultUnion]),
+    __param(0, (0, type_graphql_1.Arg)("pharse")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "search", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserMutationReponse_1.UserMutationResponse),
     __param(0, (0, type_graphql_1.Arg)("registerInput")),

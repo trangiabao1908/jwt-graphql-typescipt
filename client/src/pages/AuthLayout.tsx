@@ -1,13 +1,14 @@
+import { useMutation } from "@apollo/client";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { AuthContext, AuthContextType } from "../contexts/AuthProvider";
-import authToken from "../utils/authToken";
 import { graphql } from "../gql/index";
-import { useMutation } from "@apollo/client";
+import authToken from "../utils/authToken";
 
 const LOGOUT_TASK = graphql(
   "mutation Logout($userId: ID!) {\n  logout(userId: $userId) {\n    code\n    success\n  }\n}"
 );
+
 const AuthLayout: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { verifyAuth, isAuthenticated, SetIsAuthenticated } =
@@ -41,6 +42,9 @@ const AuthLayout: React.FC = () => {
         <nav className="mt-10 w-full border-b-2 border-gray-400 text-center pb-4">
           <Link to="." className="mr-3  text-lg underline">
             Home
+          </Link>
+          <Link to="search" className="mr-3  text-lg underline">
+            Search
           </Link>
           <Link to="login" className="mr-3  text-lg underline">
             Login

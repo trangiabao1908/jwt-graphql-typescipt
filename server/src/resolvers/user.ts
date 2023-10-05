@@ -1,17 +1,57 @@
-import { User } from "../entities/User";
-import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
-import { RegisterInput } from "../types/RegisterInput";
 import argon2 from "argon2";
-import { UserMutationResponse } from "../types/UserMutationReponse";
-import { LoginInput } from "../types/LoginInput";
-import { createRefreshToken, createToken } from "../utils/authToken";
+import {
+  Arg,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+  createUnionType,
+} from "type-graphql";
+import { User } from "../entities/User";
 import { Context } from "../types/Context";
+import { LoginInput } from "../types/LoginInput";
+import { RegisterInput } from "../types/RegisterInput";
+import { UserMutationResponse } from "../types/UserMutationReponse";
+import { createRefreshToken, createToken } from "../utils/authToken";
+import { Like } from "typeorm";
+
+const SearchResultUnion = createUnionType({
+  name: "SearchResult",
+  types: () => [User] as const,
+  resolveType: (value) => {
+    if ("username" in value) {
+      return "User";
+    }
+    return undefined;
+  },
+});
+
 @Resolver(UserMutationResponse)
 export class UserResolver {
   @Query(() => [User])
   async getAllUser(): Promise<User[]> {
     const users = await User.find();
     return users;
+  }
+  @Query(() => [SearchResultUnion])
+  async search(
+    @Arg("pharse") pharse: string
+  ): Promise<Array<typeof SearchResultUnion>> {
+    try {
+      if (pharse !== "") {
+        const names = await User.find({
+          where: {
+            username: Like(`%${pharse}%`),
+          },
+        });
+        return [...names];
+      }
+      return [];
+    } catch (err) {
+      console.log(err);
+      throw new Error("Could not find user");
+    }
   }
   @Mutation(() => UserMutationResponse)
   async register(
